@@ -98,6 +98,13 @@ namespace WpfAnimatedGif
         private static readonly Dictionary<CacheKey, AnimationCacheEntry> _animationCache = new Dictionary<CacheKey, AnimationCacheEntry>();
         private static readonly Dictionary<CacheKey, HashSet<Image>> _imageControls = new Dictionary<CacheKey, HashSet<Image>>();
 
+        /// <summary>
+        /// Любые анимации, которые попадают в кэш, остаются там на протяжении всего времени.
+        /// Такое поведение предпочтительно, если приложение используется только те анимации, которые зашиты в ресурсах.
+        /// Если приложение использует случайные анимации, то настройка должна быть обязательно выключена.
+        /// </summary>
+        public static bool DisableClearCache { get; set; } = true;
+
         public static void AddControlForSource(ImageSource source, Image imageControl)
         {
             var cacheKey = new CacheKey(source);
@@ -116,7 +123,7 @@ namespace WpfAnimatedGif
             {
                 if (controls.Remove(imageControl))
                 {
-                    if (controls.Count == 0)
+                    if (controls.Count == 0 && !DisableClearCache)
                     {
                         _animationCache.Remove(cacheKey);
                         _imageControls.Remove(cacheKey);
