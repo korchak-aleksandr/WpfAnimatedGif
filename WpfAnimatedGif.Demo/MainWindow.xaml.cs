@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using Microsoft.VisualBasic;
 using Microsoft.Win32;
 
 namespace WpfAnimatedGif.Demo
@@ -178,6 +177,80 @@ namespace WpfAnimatedGif.Demo
             }
         }
 
+        private double _speedRatio = 1.0;
+        public double SpeedRatio
+        {
+            get => _speedRatio;
+            set
+            {
+                _speedRatio = value;
+                OnPropertyChanged(nameof(SpeedRatio));
+                OnPropertyChanged(nameof(ActualSpeedRatio));
+            }
+        }
+
+        private Duration _duration = TimeSpan.FromSeconds(3);
+        public Duration Duration
+        {
+            get => _duration;
+            set
+            {
+                _duration = value;
+                OnPropertyChanged(nameof(Duration));
+                OnPropertyChanged(nameof(ActualDuration));
+            }
+        }
+
+        private bool _useDefaultDuration = true;
+        public bool UseDefaultDuration
+        {
+            get => _useDefaultDuration;
+            set
+            {
+                _useDefaultDuration = value;
+                OnPropertyChanged(nameof(UseDefaultDuration));
+                OnPropertyChanged(nameof(ActualDuration));
+                OnPropertyChanged(nameof(ActualSpeedRatio));
+            }
+        }
+
+        private bool _useSpeedRatio = false;
+        public bool UseSpeedRatio
+        {
+            get => _useSpeedRatio;
+            set
+            {
+                _useSpeedRatio = value;
+                if (value)
+                {
+                    UseDuration = false;
+                }
+                OnPropertyChanged(nameof(UseSpeedRatio));
+                OnPropertyChanged(nameof(ActualSpeedRatio));
+                OnPropertyChanged(nameof(ActualDuration));
+            }
+        }
+
+        private bool _useDuration = false;
+        public bool UseDuration
+        {
+            get => _useDuration;
+            set
+            {
+                _useDuration = value;
+                if (value)
+                {
+                    UseSpeedRatio = false;
+                }
+                OnPropertyChanged(nameof(UseDuration));
+                OnPropertyChanged(nameof(ActualDuration));
+                OnPropertyChanged(nameof(ActualSpeedRatio));
+            }
+        }
+
+        public Duration? ActualDuration => UseDuration ? Duration : default(Duration?);
+        public double? ActualSpeedRatio => UseSpeedRatio ? SpeedRatio : default(double?);
+
         private bool _autoStart = true;
         public bool AutoStart
         {
@@ -188,7 +261,19 @@ namespace WpfAnimatedGif.Demo
                 OnPropertyChanged("AutoStart");
             }
         }
-        
+
+        private bool _gifVisible = true;
+        public bool GifVisible
+        {
+            get { return _gifVisible; }
+            set
+            {
+                _gifVisible = value;
+                img.Visibility = _gifVisible ? Visibility.Visible : Visibility.Collapsed;
+
+                OnPropertyChanged("GifVisible");
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -233,7 +318,7 @@ namespace WpfAnimatedGif.Demo
 
         private void btnOpenUrl_Click(object sender, RoutedEventArgs e)
         {
-            string url = Interaction.InputBox("Enter the URL of the image to load", "Enter URL");
+            string url = InputBox.Show("Enter the URL of the image to load", "Enter URL");
             if (!string.IsNullOrEmpty(url))
             {
                 Images.Add(url);
